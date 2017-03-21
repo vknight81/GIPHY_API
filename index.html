@@ -26,11 +26,12 @@
         <div class="col-lg-12">
           <div class="row">
           <p>
-              <button data-sport="NFL">NFL</button>
-              <button data-sport="NBA">NBA</button>
-              <button data-sport="WWE">WWE</button>
-              <button data-sport="MLB">MLB</button>
-              <div id="league-view" data-sport=""></div>
+            <div id="leagues-view">
+              <button class="league" data-sport="NFL">NFL</button>
+              <button class="league" data-sport="NBA">NBA</button>
+              <button class="league" data-sport="WWE">WWE</button>
+              <button class="league" data-sport="MLB">MLB</button>
+            </div>
           </p>
         </div>
       </div>
@@ -55,13 +56,13 @@
           <div>
     <!-- We'll be dumping our JSON contents in here -->
 
-            <!-- This form will be where users input data about the movies -->
+            <!-- This form will be where users input data about the leagues -->
             <form id="league-form">
               <label for="league-input">Add A League</label>
               <input type="text" id="league-input"><br>
 
               <!-- This button will trigger our AJAX call -->
-              <input id="find-league" type="submit" value="League Search">
+              <input id="add-league" type="submit" value="League Search">
             </form>
 
           </div>  
@@ -77,36 +78,54 @@
 <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
   <script type="text/javascript">
 
-  var leagues = ["NFL", "NBA", "WWE", "MLB"];
+    var leagues = ["NFL", "NBA", "WWE", "MLB"];
 
-      function renderButtons() {
+    function renderButtons() {
 
-        $("#leagues-view").empty();
+      $("#leagues-view").empty();
 
-        for (var i = 0; i < leagues.length; i++) {
+      for (var i = 0; i < leagues.length; i++) {
 
-          var a = $("<button>");
-          // Adding a class
-          a.addClass("league");
-          // Adding a data-attribute with a value of the movie at index i
-          a.attr("data-name", leagues[i]);
-          // Providing the button's text with a value of the movie at index i
-          a.text(leagues[i]);
-          // Adding the button to the HTML
-          $("#league-view").append(a);
-        };
+        var a = $("<button>");
+        // Adding a class
+        a.addClass("league");
+        // Adding a data-attribute with a value of the movie at index i
+        a.attr("data-sport", leagues[i]);
+        // Providing the button's text with a value of the movie at index i
+        a.text(leagues[i]);
+        // Adding the button to the HTML
+        $("#leagues-view").append(a);
       };
+    };
 
-  $("button").on("click", function(){
 
-  	var sport = $(this).attr("data-sport");
+    $("#add-league").on("click", function(event) {
+      
+      event.preventDefault();
 
-  	var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
+      // This line will grab the text from the input box
+      var league = $("#league-input").val().trim();
+      // The movie from the textbox is then added to our array
+      leagues.push(league);
+
+      // calling renderButtons which handles the processing of our movie array
+      renderButtons();
+    });
+
+    // Calling the renderButtons function at least once to display the initial list of movies
+    renderButtons();
+
+
+  $(document).on("click", ".league", function(){
+
+    var sport = $(this).attr("data-sport");
+
+    var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
         sport + "&api_key=dc6zaTOxFJmzC&limit=10";
 
         $.ajax({
-        	url: queryURL,
-        	method: "GET"
+          url: queryURL,
+          method: "GET"
         }).done(function(response) {
 
           $("#gifs-appear-here").empty(gifDiv);
@@ -115,7 +134,7 @@
 
           var rating = response.data[i].rating;
 
-        	var p = $("<p>").text("Rating: " + rating);
+          var p = $("<p>").text("Rating: " + rating);
           console.log(rating);
 
           var sportImage = $("<img>");
@@ -147,14 +166,13 @@
           $(this).attr("src", still_url);
           $(this).attr("data-state", "still");
           };
-
+        renderButtons();
         });
-
+      
     });
 
         });
 
-  
 
 
   </script>
